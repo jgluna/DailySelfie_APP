@@ -19,13 +19,14 @@
         <activity
             android:name=".FullSizeActivity"
             android:label="@string/title_activity_full_size" />
-
         <provider
             android:name=".provider.SelfiesProvider"
             android:authorities="com.github.jgluna.dailyselfie" />
+        <receiver android:name=".notification.AlarmBroadcastReceiver"/>
     </application>
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
 </manifest>

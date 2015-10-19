@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.github.jgluna.dailyselfie.model.Selfie;
 import com.github.jgluna.dailyselfie.model.SelfieListAdapter;
+import com.github.jgluna.dailyselfie.notification.AlarmManagerHelper;
 import com.github.jgluna.dailyselfie.provider.DBHelper;
 import com.github.jgluna.dailyselfie.provider.SelfiesProvider;
 
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setAlarm();
         setContentView(R.layout.activity_main);
         selfies = loadSelfiesFromProvider();
         adapter = new SelfieListAdapter(this, selfies);
@@ -127,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } while (c.moveToNext());
         }
+        c.close();
         return selfies;
     }
 
@@ -170,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAlarm(){
-        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        AlarmManagerHelper helper = new AlarmManagerHelper(getApplicationContext());
+        helper.setAlarm(21);
     }
 
 }

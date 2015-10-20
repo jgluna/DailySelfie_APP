@@ -29,11 +29,6 @@
 
         <receiver android:name=".notification.AlarmBroadcastReceiver" />
 
-        <activity
-            android:name=".NotificationActivity"
-            android:label="@string/title_activity_notification"
-            android:noHistory="true">
-        </activity>
     </application>
 
 </manifest>

@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -22,12 +20,9 @@ import com.github.jgluna.dailyselfie.notification.AlarmManagerHelper;
 import com.github.jgluna.dailyselfie.provider.DBHelper;
 import com.github.jgluna.dailyselfie.provider.SelfiesProvider;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,6 +36,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            if (extras.getBoolean("fromNotification")) {
+                Intent takePictureIntent = SelfieHelper.addOneSelfie(this.getApplicationContext());
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
         setAlarm();
         setContentView(R.layout.activity_main);
         selfies = loadSelfiesFromProvider();
@@ -144,32 +146,17 @@ public class MainActivity extends AppCompatActivity {
 //                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
 //            }
 //        }
-        currentPhotoPath = SelfieHelper.addOneSelfie(this, REQUEST_TAKE_PHOTO);
+        Intent takePictureIntent = SelfieHelper.addOneSelfie(this.getApplicationContext());
+        startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-//            Selfie s = new Selfie();
-//            s.setImagePath(currentPhotoPath);
-//            s.setSelfieDate(new Date());
-//            adapter.add(s);
-//            currentPhotoPath = null;
-//            //TODO mover a una fachada, ahorita es pa que funcione
-//            ContentValues values = new ContentValues();
-//            values.put(DBHelper.CREATION_DATE_COLUMN, iso8601Format.format(s.getSelfieDate()));
-//            values.put(DBHelper.ORIGINAL_IMAGE_PATH_COLUMN, s.getImagePath());
-//            Uri uri = getContentResolver().insert(SelfiesProvider.CONTENT_URI, values);
-//            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
-            Selfie s = SelfieHelper.storeSelfie(this, currentPhotoPath);
+            Selfie s = SelfieHelper.storeSelfie(this.getApplicationContext());
             adapter.add(s);
         }
     }
-
-//    private File createImageFile() throws IOException {
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        return new File(Environment.getExternalStorageDirectory(), timeStamp + ".jpg");
-//    }
 
     private void setAlarm() {
         AlarmManagerHelper helper = new AlarmManagerHelper(getApplicationContext());

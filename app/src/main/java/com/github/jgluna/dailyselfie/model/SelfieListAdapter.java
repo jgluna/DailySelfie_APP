@@ -36,11 +36,12 @@ public class SelfieListAdapter extends ArrayAdapter<Selfie> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.selfie_item, parent, false);
             holder.dateView = (TextView) convertView.findViewById(R.id.list_selfie_date);
             holder.imageView = (ImageView) convertView.findViewById(R.id.list_selfie_image);
+            Picasso.with(context).load(new File(selfie.getImagePath())).into(holder.imageView);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Picasso.with(context).load(new File(selfie.getImagePath())).into(holder.imageView);
+//        Picasso.with(context).load(new File(selfie.getImagePath())).into(holder.imageView);
         holder.dateView.setText(selfie.getSelfieDate().toString());
         return convertView;
     }

@@ -1,0 +1,63 @@
+package com.github.jgluna.dailyselfie;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+
+import com.github.jgluna.dailyselfie.model.Selfie;
+import com.github.jgluna.dailyselfie.provider.DBHelper;
+import com.github.jgluna.dailyselfie.provider.SelfiesProvider;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class SelfieHelper {
+
+    private static WeakReference<Activity> activity;
+    private static final SimpleDateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    public static String addOneSelfie(Activity activity, int requestId) {
+        SelfieHelper.activity = new WeakReference<>(activity);
+        String currentPhotoPath = null;
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(SelfieHelper.activity.get().getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                currentPhotoPath = photoFile.getPath();
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                SelfieHelper.activity.get().startActivityForResult(takePictureIntent, requestId);
+            }
+        }
+        SelfieHelper.activity.clear();
+        return currentPhotoPath;
+    }
+
+    public static Selfie storeSelfie(Activity activity, String selfiePath) {
+        SelfieHelper.activity = new WeakReference<>(activity);
+        Selfie s = new Selfie();
+        s.setImagePath(selfiePath);
+        s.setSelfieDate(new Date());
+        //TODO mover a una fachada, ahorita es pa que funcione
+        ContentValues values = new ContentValues();
+        values.put(DBHelper.CREATION_DATE_COLUMN, iso8601Format.format(s.getSelfieDate()));
+        values.put(DBHelper.ORIGINAL_IMAGE_PATH_COLUMN, s.getImagePath());
+        SelfieHelper.activity.get().getContentResolver().insert(SelfiesProvider.CONTENT_URI, values);
+        return s;
+    }
+
+    private static File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        return new File(Environment.getExternalStorageDirectory(), timeStamp + ".jpg");
+    }
+}

@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -30,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_TAKE_PHOTO = 1;
     private final SimpleDateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private SelfieListAdapter adapter;
-    private String currentPhotoPath;
     private List<Selfie> selfies;
 
     @Override
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                mode.getMenuInflater().inflate(R.menu.menu_main, menu);
+                mode.getMenuInflater().inflate(R.menu.menu_multiple, menu);
                 return true;
             }
 
@@ -131,25 +131,6 @@ public class MainActivity extends AppCompatActivity {
         return selfies;
     }
 
-    public void addOneSelfie(View view) {
-//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-//            File photoFile = null;
-//            try {
-//                photoFile = createImageFile();
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-//            if (photoFile != null) {
-//                this.currentPhotoPath = photoFile.getPath();
-//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-//                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-//            }
-//        }
-        Intent takePictureIntent = SelfieHelper.addOneSelfie(this.getApplicationContext());
-        startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
@@ -158,9 +139,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add:
+                Intent takePictureIntent = SelfieHelper.addOneSelfie(this.getApplicationContext());
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void setAlarm() {
         AlarmManagerHelper helper = new AlarmManagerHelper(getApplicationContext());
         helper.setAlarm(21);
     }
-
 }

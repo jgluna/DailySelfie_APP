@@ -13,6 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.github.jgluna.dailyselfie.model.Selfie;
@@ -24,6 +26,7 @@ import com.github.jgluna.dailyselfie.provider.SelfiesProvider;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private final SimpleDateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private SelfieListAdapter adapter;
     private List<Selfie> selfies;
+    private LinearLayout effectList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +47,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
-        setAlarm();
+//        setAlarm();
         setContentView(R.layout.activity_main);
+        createEffectsList();
         selfies = loadSelfiesFromProvider();
         adapter = new SelfieListAdapter(this, selfies);
         final ListView listView = (ListView) findViewById(R.id.list_selfies);
@@ -62,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 mode.getMenuInflater().inflate(R.menu.menu_multiple, menu);
+                if (effectList != null) {
+                    effectList.setVisibility(View.VISIBLE);
+                }
                 return true;
             }
 
@@ -93,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDestroyActionMode(ActionMode mode) {
                 adapter.removeSelection();
+                if (effectList != null) {
+                    effectList.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -155,6 +166,17 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void createEffectsList() {
+        effectList = (LinearLayout) findViewById(R.id.list_effects);
+        String[] effects = getResources().getStringArray(R.array.effects);
+        for (String effect : Arrays.asList(effects)) {
+            Button effectButton = new Button(this);
+            effectButton.setText(effect);
+            effectButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
+            effectList.addView(effectButton);
         }
     }
 

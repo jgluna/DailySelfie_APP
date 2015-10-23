@@ -3,6 +3,7 @@ package com.github.jgluna.dailyselfie;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.SparseBooleanArray;
@@ -18,6 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ToggleButton;
 
+import com.github.jgluna.dailyselfie.comm.BackgroundTask;
+import com.github.jgluna.dailyselfie.model.EffectsRequestWrapper;
 import com.github.jgluna.dailyselfie.model.Selfie;
 import com.github.jgluna.dailyselfie.model.SelfieListAdapter;
 import com.github.jgluna.dailyselfie.notification.AlarmManagerHelper;
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Selfie> selfies;
     private LinearLayout effectList;
     private Set<String> selectedEffects = new HashSet<>();
-    private MenuItem applyEfectsMenuItem;
+    private MenuItem applyEffectsMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
                 if (effectList != null) {
                     effectList.setVisibility(View.VISIBLE);
                 }
-                applyEfectsMenuItem = menu.findItem(R.id.action_apply_effects);
-                applyEfectsMenuItem.setEnabled(false);
+                applyEffectsMenuItem = menu.findItem(R.id.action_apply_effects);
+                applyEffectsMenuItem.setEnabled(false);
                 return true;
             }
 
@@ -87,10 +90,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                SparseBooleanArray selected = adapter
+                        .getSelectedIds();
                 switch (item.getItemId()) {
                     case R.id.action_settings:
-                        SparseBooleanArray selected = adapter
-                                .getSelectedIds();
                         for (int i = (selected.size() - 1); i >= 0; i--) {
                             if (selected.valueAt(i)) {
                                 Selfie selectedItem = adapter
@@ -101,6 +104,18 @@ public class MainActivity extends AppCompatActivity {
                         mode.finish();
                         return true;
                     case R.id.action_apply_effects:
+                        EffectsRequestWrapper wrapper;
+                        for (int i = (selected.size() - 1); i >= 0; i--) {
+                            if (selected.valueAt(i)) {
+                                wrapper = new EffectsRequestWrapper();
+                                Selfie selectedItem = adapter
+                                        .getItem(selected.keyAt(i));
+                                wrapper.setSelfie(selectedItem);
+                                wrapper.setEffects(selectedEffects);
+                                new BackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,wrapper);
+                            }
+                        }
+                        mode.finish();
                         return true;
                     default:
                         return false;
@@ -194,9 +209,9 @@ public class MainActivity extends AppCompatActivity {
                         selectedEffects.remove(buttonView.getText().toString());
                     }
                     if (selectedEffects.isEmpty()) {
-                        applyEfectsMenuItem.setEnabled(false);
+                        applyEffectsMenuItem.setEnabled(false);
                     } else {
-                        applyEfectsMenuItem.setEnabled(true);
+                        applyEffectsMenuItem.setEnabled(true);
                     }
                 }
             });

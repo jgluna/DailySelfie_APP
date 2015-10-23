@@ -13,9 +13,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ToggleButton;
 
 import com.github.jgluna.dailyselfie.model.Selfie;
 import com.github.jgluna.dailyselfie.model.SelfieListAdapter;
@@ -27,7 +28,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private SelfieListAdapter adapter;
     private List<Selfie> selfies;
     private LinearLayout effectList;
+    private Set<String> selectedEffects = new HashSet<>();
+    private MenuItem applyEfectsMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
                 if (effectList != null) {
                     effectList.setVisibility(View.VISIBLE);
                 }
+                applyEfectsMenuItem = menu.findItem(R.id.action_apply_effects);
+                applyEfectsMenuItem.setEnabled(false);
                 return true;
             }
 
@@ -92,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         mode.finish();
+                        return true;
+                    case R.id.action_apply_effects:
                         return true;
                     default:
                         return false;
@@ -173,9 +182,24 @@ public class MainActivity extends AppCompatActivity {
         effectList = (LinearLayout) findViewById(R.id.list_effects);
         String[] effects = getResources().getStringArray(R.array.effects);
         for (String effect : Arrays.asList(effects)) {
-            Button effectButton = new Button(this);
+            ToggleButton effectButton = new ToggleButton(this);
             effectButton.setText(effect);
             effectButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
+            effectButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        selectedEffects.add(buttonView.getText().toString());
+                    } else {
+                        selectedEffects.remove(buttonView.getText().toString());
+                    }
+                    if (selectedEffects.isEmpty()) {
+                        applyEfectsMenuItem.setEnabled(false);
+                    } else {
+                        applyEfectsMenuItem.setEnabled(true);
+                    }
+                }
+            });
             effectList.addView(effectButton);
         }
     }

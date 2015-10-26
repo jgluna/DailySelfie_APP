@@ -199,6 +199,8 @@ public class MainActivity extends AppCompatActivity {
         for (String effect : Arrays.asList(effects)) {
             ToggleButton effectButton = new ToggleButton(this);
             effectButton.setText(effect);
+            effectButton.setTextOff(effect);
+            effectButton.setTextOn(effect);
             effectButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
             effectButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override

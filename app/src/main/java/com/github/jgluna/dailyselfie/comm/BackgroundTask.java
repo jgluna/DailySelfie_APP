@@ -1,35 +1,37 @@
 package com.github.jgluna.dailyselfie.comm;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.github.jgluna.dailyselfie.model.EffectsRequestWrapper;
+import com.github.jgluna.dailyselfie.model.Selfie;
 
-import retrofit.Callback;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit.mime.TypedFile;
 
-public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, String> {
+public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfie> {
     @Override
-    protected String doInBackground(EffectsRequestWrapper... params) {
+    protected Selfie doInBackground(EffectsRequestWrapper... params) {
+        EffectsRequestWrapper wrapper = params[0];
         RestAdapter restAdapter = new RestAdapter.Builder().setLogLevel(RestAdapter.LogLevel.FULL).setEndpoint("http://localhost:8080/").build();
         EffectsControllerInterface restService = restAdapter.create(EffectsControllerInterface.class);
-        //TODO asignar imagen a parametro 1
-        restService.applyEffect(null, params[0], new Callback<Response>() {
-            @Override
-            public void success(Response response, Response response2) {
-                //TODO modificar la imagen enviada por la obtenida
-                Log.v("BackgroundTask", "yay!!");
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                //TODO toast de error
-                Log.v("BackgroundTask", "buu :(");
-            }
-        });
+        File photo = new File(wrapper.getSelfie().getImagePath());
+        TypedFile typedImage = new TypedFile("application/octet-stream", photo);
+        Response response = restService.applyEffect(typedImage, wrapper);
+        try {
+            InputStream is = response.getBody().in();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
-//TODO deberia sobreescribir postExecute? quizas para marcar las imagenes como actualizando?
+
+    @Override
+    protected void onPostExecute(Selfie selfie) {
+        super.onPostExecute(selfie);
+    }
 }

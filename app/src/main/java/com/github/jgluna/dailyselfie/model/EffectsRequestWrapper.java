@@ -1,12 +1,11 @@
 package com.github.jgluna.dailyselfie.model;
 
-import java.util.List;
+import java.io.Serializable;
 import java.util.Set;
 
-public class EffectsRequestWrapper {
+public class EffectsRequestWrapper implements Serializable {
     private Selfie selfie;
     private Set<String> effects;
-
 
     public Set<String> getEffects() {
         return effects;

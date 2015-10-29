@@ -1,6 +1,6 @@
 package com.github.jgluna.dailyselfie.comm;
 
-import com.github.jgluna.dailyselfie.model.EffectsRequestWrapper;
+import java.util.List;
 
 import retrofit.client.Response;
 import retrofit.http.Multipart;
@@ -13,13 +13,12 @@ public interface EffectsControllerInterface {
 
     String BASE_PATH = "/effect";
     String IMAGE_PARAMETER = "image";
-    String WRAPPER_PARAMETER = "wrapper";
-
+    String BODY_PARAMETER = "body";
 
     @Streaming
     @Multipart
     @POST(BASE_PATH)
     Response applyEffect(@Part(IMAGE_PARAMETER) TypedFile image,
-                         @Part(WRAPPER_PARAMETER) EffectsRequestWrapper effectsWrapper);
+                         @Part(BODY_PARAMETER) List<String> effects);
 
 }

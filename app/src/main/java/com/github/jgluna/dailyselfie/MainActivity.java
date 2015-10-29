@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                                         .getItem(selected.keyAt(i));
                                 wrapper.setSelfie(selectedItem);
                                 wrapper.setEffects(selectedEffects);
-                                new BackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,wrapper);
+                                new BackgroundTask(MainActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, wrapper);
                             }
                         }
                         mode.finish();

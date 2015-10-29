@@ -2,7 +2,6 @@ package com.github.jgluna.dailyselfie.comm;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.os.Environment;
 
 import com.github.jgluna.dailyselfie.model.EffectsRequestWrapper;
 import com.github.jgluna.dailyselfie.model.Selfie;
@@ -37,12 +36,14 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
         TypedFile typedImage = new TypedFile("application/octet-stream", photo);
         Response response = restService.applyEffect(typedImage, new ArrayList<>(wrapper.getEffects()));
         try {
-            File from = new File(Environment.getExternalStorageDirectory(), wrapper.getSelfie().getImagePath());
-            File to = new File(Environment.getExternalStorageDirectory(), wrapper.getSelfie().getImagePath().replace(".jpg", "_old.jpg"));
-            copy(from, to);
-            from.delete();
+            File from = new File(wrapper.getSelfie().getImagePath());
+            File to = new File(wrapper.getSelfie().getImagePath().replace(".jpg", "_old.jpg"));
+            from.renameTo(to);
+            //TODO si la de arriba no funciona usar esta
+            //copy(from, to);
+            //from.delete();
             InputStream is = response.getBody().in();
-            File file = new File(Environment.getExternalStorageDirectory(), wrapper.getSelfie().getImagePath());
+            File file = new File(wrapper.getSelfie().getImagePath());
             if (!file.exists()) {
                 file.createNewFile();
             }

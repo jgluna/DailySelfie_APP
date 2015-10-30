@@ -1,7 +1,6 @@
 package com.github.jgluna.dailyselfie.model;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.jgluna.dailyselfie.R;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.List;
@@ -36,12 +36,13 @@ public class SelfieListAdapter extends ArrayAdapter<Selfie> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.selfie_item, parent, false);
             holder.dateView = (TextView) convertView.findViewById(R.id.list_selfie_date);
             holder.imageView = (ImageView) convertView.findViewById(R.id.list_selfie_image);
-            Uri uri = Uri.fromFile(new File(selfie.getImagePath()));
-            holder.imageView.setImageURI(uri);
+//            Uri uri = Uri.fromFile(new File(selfie.getImagePath()));
+//            holder.imageView.setImageURI(uri);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+        Picasso.with(context).load(new File(selfie.getImagePath())).into(holder.imageView);
         holder.dateView.setText(selfie.getSelfieDate().toString());
         return convertView;
     }

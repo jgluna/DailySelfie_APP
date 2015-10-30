@@ -1,13 +1,13 @@
 package com.github.jgluna.dailyselfie.comm;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 
+import com.github.jgluna.dailyselfie.MainActivity;
 import com.github.jgluna.dailyselfie.model.EffectsRequestWrapper;
 import com.github.jgluna.dailyselfie.model.Selfie;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,9 +21,9 @@ import retrofit.mime.TypedFile;
 
 public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfie> {
 
-    private final WeakReference<Activity> activity;
+    private final WeakReference<MainActivity> activity;
 
-    public BackgroundTask(Activity activity) {
+    public BackgroundTask(MainActivity activity) {
         this.activity = new WeakReference<>(activity);
     }
 
@@ -34,14 +34,11 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
         EffectsControllerInterface restService = restAdapter.create(EffectsControllerInterface.class);
         File photo = new File(wrapper.getSelfie().getImagePath());
         TypedFile typedImage = new TypedFile("application/octet-stream", photo);
-        Response response = restService.applyEffect(typedImage, new ArrayList<>(wrapper.getEffects()));
         try {
+            Response response = restService.applyEffect(typedImage, new ArrayList<>(wrapper.getEffects()));
             File from = new File(wrapper.getSelfie().getImagePath());
             File to = new File(wrapper.getSelfie().getImagePath().replace(".jpg", "_old.jpg"));
             from.renameTo(to);
-            //TODO si la de arriba no funciona usar esta
-            //copy(from, to);
-            //from.delete();
             InputStream is = response.getBody().in();
             File file = new File(wrapper.getSelfie().getImagePath());
             if (!file.exists()) {
@@ -63,20 +60,6 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
     @Override
     protected void onPostExecute(Selfie selfie) {
         super.onPostExecute(selfie);
+        Picasso.with(activity.get()).invalidate(selfie.getImagePath());
     }
-
-    private void copy(File src, File dst) throws IOException {
-        InputStream in = new FileInputStream(src);
-        OutputStream out = new FileOutputStream(dst);
-
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
-        }
-        in.close();
-        out.close();
-    }
-
-
 }

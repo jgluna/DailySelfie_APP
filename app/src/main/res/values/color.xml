@@ -2,4 +2,6 @@
 <resources>
     <color name="pressed_color">#4d90fe</color>
     <color name="default_color">#ffffff</color>
+    <color name="menu_background">#111</color>
+    <color name="menu_foreground">#ffffff</color>
 </resources>

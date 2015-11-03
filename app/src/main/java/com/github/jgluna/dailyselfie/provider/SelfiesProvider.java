@@ -47,23 +47,23 @@ public class SelfiesProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(DBHelper.TABLE_NAME);
+        qb.setTables(DBHelper.SELFIES_TABLE);
 
         switch (uriMatcher.match(uri)) {
             case ALL_SELFIES:
                 qb.setProjectionMap(values);
                 break;
             case SINGLE_SELFIE:
-                qb.appendWhere(DBHelper.ID_COLUMN + "=" + uri.getLastPathSegment());
+                qb.appendWhere(DBHelper.SELFIES_ID_COLUMN + "=" + uri.getLastPathSegment());
                 break;
             case MODIFIED_SELFIES:
-                qb.appendWhere(DBHelper.IS_MODIFIED_COLUMN + "=1");
+                qb.appendWhere(DBHelper.SELFIES_IS_MODIFIED_COLUMN + "=1");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
         if (sortOrder == null || sortOrder.equals("")) {
-            sortOrder = DBHelper.CREATION_DATE_COLUMN;
+            sortOrder = DBHelper.SELFIES_CREATION_DATE_COLUMN;
         }
         Cursor c = qb.query(db, projection, selection, selectionArgs, null,
                 null, sortOrder);
@@ -78,7 +78,7 @@ public class SelfiesProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        long rowID = db.insert(DBHelper.TABLE_NAME, "", values);
+        long rowID = db.insert(DBHelper.SELFIES_TABLE, "", values);
         if (rowID > 0) {
             Uri _uri = ContentUris.withAppendedId(CONTENT_URI, rowID);
             getContext().getContentResolver().notifyChange(_uri, null);
@@ -93,7 +93,7 @@ public class SelfiesProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case SINGLE_SELFIE:
                 String id = uri.getLastPathSegment();
-                count = db.delete(DBHelper.TABLE_NAME, DBHelper.ID_COLUMN + " = " + id +
+                count = db.delete(DBHelper.SELFIES_TABLE, DBHelper.SELFIES_ID_COLUMN + " = " + id +
                         (!TextUtils.isEmpty(selection) ? " AND (" +
                                 selection + ')' : ""), selectionArgs);
                 break;
@@ -109,7 +109,7 @@ public class SelfiesProvider extends ContentProvider {
         int count;
         switch (uriMatcher.match(uri)) {
             case SINGLE_SELFIE:
-                count = db.update(DBHelper.TABLE_NAME, values, DBHelper.ID_COLUMN +
+                count = db.update(DBHelper.SELFIES_TABLE, values, DBHelper.SELFIES_ID_COLUMN +
                         " = " + uri.getLastPathSegment() +
                         (!TextUtils.isEmpty(selection) ? " AND (" +
                                 selection + ')' : ""), selectionArgs);

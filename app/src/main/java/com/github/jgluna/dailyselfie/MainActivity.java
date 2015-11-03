@@ -5,7 +5,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -14,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -23,7 +28,6 @@ import com.github.jgluna.dailyselfie.comm.BackgroundTask;
 import com.github.jgluna.dailyselfie.model.EffectsRequestWrapper;
 import com.github.jgluna.dailyselfie.model.Selfie;
 import com.github.jgluna.dailyselfie.model.SelfieListAdapter;
-import com.github.jgluna.dailyselfie.notification.AlarmManagerHelper;
 import com.github.jgluna.dailyselfie.provider.DBHelper;
 import com.github.jgluna.dailyselfie.provider.SelfiesProvider;
 
@@ -44,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout effectList;
     private Set<String> selectedEffects = new HashSet<>();
     private MenuItem applyEffectsMenuItem;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +63,46 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
-//        setAlarm();
         setContentView(R.layout.activity_main);
+
+        String[] menuOptions = getResources().getStringArray(R.array.menu_options);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationIcon(R.drawable.ic_drawer);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                mToolbar, R.string.drawer_open, R.string.drawer_close) {
+
+            /**
+             * Called when a drawer has settled in a completely closed state.
+             */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /**
+             * Called when a drawer has settled in a completely open state.
+             */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, menuOptions));
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+
         createEffectsList();
         selfies = loadSelfiesFromProvider();
         adapter = new SelfieListAdapter(this, selfies);
@@ -151,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
                 Selfie s;
                 try {
                     s = new Selfie();
-                    s.setSelfieDate(iso8601Format.parse(c.getString(c.getColumnIndex(DBHelper.CREATION_DATE_COLUMN))));
-                    s.setImagePath(c.getString(c.getColumnIndex(DBHelper.ORIGINAL_IMAGE_PATH_COLUMN)));
+                    s.setSelfieDate(iso8601Format.parse(c.getString(c.getColumnIndex(DBHelper.SELFIES_CREATION_DATE_COLUMN))));
+                    s.setImagePath(c.getString(c.getColumnIndex(DBHelper.SELFIES_ORIGINAL_IMAGE_PATH_COLUMN)));
                 } catch (ParseException e) {
                     s = null;
                     e.printStackTrace();
@@ -221,8 +267,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setAlarm() {
-        AlarmManagerHelper helper = new AlarmManagerHelper(getApplicationContext());
-        helper.setAlarm(21);
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            switch (position) {
+                case 0:
+                    DialogFragment newFragment = new TimePickerFragment();
+                    newFragment.show(getSupportFragmentManager(), "timePicker");
+                    break;
+                case 1:
+                    //TODO log out
+                    break;
+            }
+            mDrawerList.setItemChecked(position, true);
+            mDrawerLayout.closeDrawer(mDrawerList);
+        }
     }
 }

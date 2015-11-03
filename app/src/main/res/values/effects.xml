@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="effects">
-        <item>Blur</item>
+        <item>blur</item>
+        <item>glow</item>
+        <item>gray_scale</item>
+        <item>invert</item>
+        <item>solarize</item>
+        <item>noise</item>
     </string-array>
 </resources>

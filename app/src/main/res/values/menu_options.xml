@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="menu_options">
+        <!--<item>blur</item>-->
+        <!--<item>glow</item>-->
+        <!--<item>gray_scale</item>-->
+        <!--<item>invert</item>-->
+        <item>Set alarm</item>
+        <item>Logout</item>
+    </string-array>
+</resources>

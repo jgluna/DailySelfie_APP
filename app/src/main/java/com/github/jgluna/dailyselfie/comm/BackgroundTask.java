@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.RestAdapter;
 import retrofit.client.Response;
@@ -35,7 +36,12 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
         File photo = new File(wrapper.getSelfie().getImagePath());
         TypedFile typedImage = new TypedFile("application/octet-stream", photo);
         try {
-            Response response = restService.applyEffect(typedImage, new ArrayList<>(wrapper.getEffects()));
+            List<String> bababa = new ArrayList<>();
+            bababa.addAll(wrapper.getEffects());
+            for (String str : bababa) {
+                System.out.println(str);
+            }
+            Response response = restService.applyEffect(typedImage, bababa);
             File from = new File(wrapper.getSelfie().getImagePath());
             File to = new File(wrapper.getSelfie().getImagePath().replace(".jpg", "_old.jpg"));
             from.renameTo(to);

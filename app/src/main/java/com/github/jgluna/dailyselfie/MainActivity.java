@@ -1,6 +1,7 @@
 package com.github.jgluna.dailyselfie;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+        mDrawerList.setAdapter(new ArrayAdapter<>(this,
                 R.layout.drawer_list_item, menuOptions));
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -267,6 +268,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void logout() {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.apply();
+    }
+
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
@@ -276,7 +284,10 @@ public class MainActivity extends AppCompatActivity {
                     newFragment.show(getSupportFragmentManager(), "timePicker");
                     break;
                 case 1:
-                    //TODO log out
+                    logout();
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                     break;
             }
             mDrawerList.setItemChecked(position, true);

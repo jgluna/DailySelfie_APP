@@ -31,8 +31,12 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
     @Override
     protected Selfie doInBackground(EffectsRequestWrapper... params) {
         EffectsRequestWrapper wrapper = params[0];
-        RestAdapter restAdapter = new RestAdapter.Builder().setLogLevel(RestAdapter.LogLevel.FULL).setEndpoint("http://10.0.2.2:8080/").build();
-        EffectsControllerInterface restService = restAdapter.create(EffectsControllerInterface.class);
+        EffectsControllerInterface restService = new RestAdapter.Builder()
+//                .setClient(new ApacheClient(UnsafeHttpsClient.createUnsafeClient()))
+                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setEndpoint("http://10.0.2.2:8080/")
+                .build()
+                .create(EffectsControllerInterface.class);
         File photo = new File(wrapper.getSelfie().getImagePath());
         TypedFile typedImage = new TypedFile("application/octet-stream", photo);
         try {

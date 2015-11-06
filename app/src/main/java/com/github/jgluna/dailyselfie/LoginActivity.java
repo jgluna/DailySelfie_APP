@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.github.jgluna.dailyselfie.comm.EffectsControllerInterface;
+import com.github.jgluna.dailyselfie.model.SelfiesOrder;
 
 import retrofit.ErrorHandler;
 import retrofit.RestAdapter;
@@ -168,6 +169,7 @@ public class LoginActivity extends Activity {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("user_name", userName);
+        editor.putString("user_selfie_order", SelfiesOrder.DATE_DESC.getDescription());
         return editor.commit();
     }
 

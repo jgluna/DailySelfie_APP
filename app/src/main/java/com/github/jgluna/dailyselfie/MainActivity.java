@@ -29,6 +29,7 @@ import com.github.jgluna.dailyselfie.comm.BackgroundTask;
 import com.github.jgluna.dailyselfie.model.EffectsRequestWrapper;
 import com.github.jgluna.dailyselfie.model.Selfie;
 import com.github.jgluna.dailyselfie.model.SelfieListAdapter;
+import com.github.jgluna.dailyselfie.model.SelfiesOrder;
 import com.github.jgluna.dailyselfie.provider.DBHelper;
 import com.github.jgluna.dailyselfie.provider.SelfiesProvider;
 
@@ -105,7 +106,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         createEffectsList();
-        selfies = loadSelfiesFromProvider();
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
+        SelfiesOrder order = SelfiesOrder.valueOf(pref.getString("user_selfie_order", SelfiesOrder.DATE_DESC.getDescription()));
+        //TODO ver como carajo manejamos estos valores
+        selfies = loadSelfiesFromProvider(order, false);
         adapter = new SelfieListAdapter(this, selfies);
         final ListView listView = (ListView) findViewById(R.id.list_selfies);
         listView.setAdapter(adapter);
@@ -188,10 +192,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private List<Selfie> loadSelfiesFromProvider() {
-        //TODO mover a una fachada o algo asi...
+    private List<Selfie> loadSelfiesFromProvider(SelfiesOrder order, boolean isModified) {
         Uri friends = SelfiesProvider.CONTENT_URI;
-        Cursor c = getContentResolver().query(friends, null, null, null, null);
+        String where = null;
+        String[] whereValues = null;
+        if (isModified) {
+            where = DBHelper.SELFIES_IS_MODIFIED_COLUMN + "=?";
+            whereValues = new String[]{String.valueOf(isModified)};
+        }
+        Cursor c = getContentResolver().query(friends, null, where, whereValues, order.getDescription());
         List<Selfie> selfies = new ArrayList<>();
         if (c.moveToFirst()) {
             do {

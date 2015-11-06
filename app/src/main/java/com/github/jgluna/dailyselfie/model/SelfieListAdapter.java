@@ -20,7 +20,6 @@ public class SelfieListAdapter extends ArrayAdapter<Selfie> {
     private final Context context;
     private SparseBooleanArray selectedSelfies;
 
-
     public SelfieListAdapter(Context context, List<Selfie> objects) {
         super(context, 0, objects);
         this.context = context;

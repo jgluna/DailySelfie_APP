@@ -13,6 +13,15 @@ public enum SelfiesOrder {
         this.description = description;
     }
 
+    public static SelfiesOrder getByString(String value) {
+        for (SelfiesOrder order : SelfiesOrder.values()) {
+            if (order.getDescription().equals(value)) {
+                return order;
+            }
+        }
+        return null;
+    }
+
     public String getDescription() {
         return this.description;
     }

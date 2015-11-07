@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
         createEffectsList();
         SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
-        SelfiesOrder order = SelfiesOrder.valueOf(pref.getString("user_selfie_order", SelfiesOrder.DATE_DESC.getDescription()));
+        SelfiesOrder order = SelfiesOrder.getByString(pref.getString("user_selfie_order", SelfiesOrder.DATE_DESC.getDescription()));
         //TODO ver como carajo manejamos estos valores
         selfies = loadSelfiesFromProvider(order, false);
         adapter = new SelfieListAdapter(this, selfies);

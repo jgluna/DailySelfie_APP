@@ -8,4 +8,9 @@
     <string name="title_activity_notification">NotificationActivity</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="drawer_logout">Logout</string>
+    <string name="drawer_set_alarm">Set Alarm</string>
+    <string name="drawer_sort_by_date">Date</string>
+    <string name="drawer_sort_by_last_modified">Modified</string>
+    <string name="drawer_sort_by">Sort by</string>
 </resources>

@@ -3,7 +3,7 @@
     xmlns:dailyselfie="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_add"
-        android:icon="@android:drawable/star_on"
+        android:icon="@drawable/ic_photo_camera_white_24dp"
         android:title="New Selfie"
         dailyselfie:showAsAction="ifRoom" />
 </menu>

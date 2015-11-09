@@ -6,9 +6,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseBooleanArray;
@@ -19,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -51,8 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private Set<String> selectedEffects = new HashSet<>();
     private MenuItem applyEffectsMenuItem;
     private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private ActionBarDrawerToggle mDrawerToggle;
+    private Toolbar mToolbar;
+    private NavigationView mNavigationView;
+    private int mCurrentSelectedPosition;
 
 
     @Override
@@ -65,45 +66,47 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_nav_drawer);
 
-        String[] menuOptions = getResources().getStringArray(R.array.menu_options);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        mToolbar.setNavigationIcon(R.drawable.ic_drawer);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                mToolbar, R.string.drawer_open, R.string.drawer_close) {
-
-            /**
-             * Called when a drawer has settled in a completely closed state.
-             */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            /**
-             * Called when a drawer has settled in a completely open state.
-             */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<>(this,
-                R.layout.drawer_list_item, menuOptions));
-        // Set the list's click listener
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
+        //blablabla
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.nav_drawer);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mToolbar.setNavigationIcon(R.drawable.ic_drawer);
+            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                }
+            });
+            mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem menuItem) {
+                    menuItem.setChecked(true);
+                    switch (menuItem.getItemId()) {
+                        case R.id.drawer_set_alarm_menu:
+                            DialogFragment newFragment = new TimePickerFragment();
+                            newFragment.show(getSupportFragmentManager(), "timePicker");
+                            mCurrentSelectedPosition = 0;
+                            return true;
+                        case R.id.drawer_logout_menu:
+                            logout();
+                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            mCurrentSelectedPosition = 1;
+                            return true;
+                        case R.id.drawer_sort_by_date_asc:
+                            return true;
+                        default:
+                            return true;
+                    }
+                }
+            });
+        }
 
         createEffectsList();
         SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
@@ -111,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         //TODO ver como carajo manejamos estos valores
         selfies = loadSelfiesFromProvider(order, false);
         adapter = new SelfieListAdapter(this, selfies);
-        final ListView listView = (ListView) findViewById(R.id.list_selfies);
+        final ListView listView = (ListView) findViewById(R.id.nav_list_selfies);
         listView.setAdapter(adapter);
         listView.setSelector(R.drawable.selector);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -144,16 +147,6 @@ public class MainActivity extends AppCompatActivity {
                 SparseBooleanArray selected = adapter
                         .getSelectedIds();
                 switch (item.getItemId()) {
-                    case R.id.action_settings:
-                        for (int i = (selected.size() - 1); i >= 0; i--) {
-                            if (selected.valueAt(i)) {
-                                Selfie selectedItem = adapter
-                                        .getItem(selected.keyAt(i));
-                                adapter.remove(selectedItem);
-                            }
-                        }
-                        mode.finish();
-                        return true;
                     case R.id.action_apply_effects:
                         EffectsRequestWrapper wrapper;
                         for (int i = (selected.size() - 1); i >= 0; i--) {
@@ -250,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createEffectsList() {
-        effectList = (LinearLayout) findViewById(R.id.list_effects);
+        effectList = (LinearLayout) findViewById(R.id.nav_list_effects);
         String[] effects = getResources().getStringArray(R.array.effects);
         for (String effect : Arrays.asList(effects)) {
             ToggleButton effectButton = new ToggleButton(this);
@@ -282,25 +275,5 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.apply();
-    }
-
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView parent, View view, int position, long id) {
-            switch (position) {
-                case 0:
-                    DialogFragment newFragment = new TimePickerFragment();
-                    newFragment.show(getSupportFragmentManager(), "timePicker");
-                    break;
-                case 1:
-                    logout();
-                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    break;
-            }
-            mDrawerList.setItemChecked(position, true);
-            mDrawerLayout.closeDrawer(mDrawerList);
-        }
     }
 }

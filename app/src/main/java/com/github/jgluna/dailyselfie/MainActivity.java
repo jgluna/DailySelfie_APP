@@ -2,12 +2,9 @@ package com.github.jgluna.dailyselfie;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -26,16 +23,13 @@ import android.widget.ListView;
 import android.widget.ToggleButton;
 
 import com.github.jgluna.dailyselfie.comm.BackgroundTask;
+import com.github.jgluna.dailyselfie.listeners.NavItemSelectedListener;
 import com.github.jgluna.dailyselfie.model.EffectsRequestWrapper;
 import com.github.jgluna.dailyselfie.model.Selfie;
 import com.github.jgluna.dailyselfie.model.SelfieListAdapter;
 import com.github.jgluna.dailyselfie.model.SelfiesOrder;
-import com.github.jgluna.dailyselfie.provider.DBHelper;
-import com.github.jgluna.dailyselfie.provider.SelfiesProvider;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -53,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
     private NavigationView mNavigationView;
-    private int mCurrentSelectedPosition;
 
 
     @Override
@@ -68,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_nav_drawer);
 
-        //blablabla
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.nav_drawer);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -82,37 +74,14 @@ public class MainActivity extends AppCompatActivity {
                     mDrawerLayout.openDrawer(GravityCompat.START);
                 }
             });
-            mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(MenuItem menuItem) {
-                    menuItem.setChecked(true);
-                    switch (menuItem.getItemId()) {
-                        case R.id.drawer_set_alarm_menu:
-                            DialogFragment newFragment = new TimePickerFragment();
-                            newFragment.show(getSupportFragmentManager(), "timePicker");
-                            mCurrentSelectedPosition = 0;
-                            return true;
-                        case R.id.drawer_logout_menu:
-                            logout();
-                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            mCurrentSelectedPosition = 1;
-                            return true;
-                        case R.id.drawer_sort_by_date_asc:
-                            return true;
-                        default:
-                            return true;
-                    }
-                }
-            });
+            mNavigationView.setNavigationItemSelectedListener(new NavItemSelectedListener(this));
         }
 
         createEffectsList();
         SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
         SelfiesOrder order = SelfiesOrder.getByString(pref.getString("user_selfie_order", SelfiesOrder.DATE_DESC.getDescription()));
         //TODO ver como carajo manejamos estos valores
-        selfies = loadSelfiesFromProvider(order, false);
+        selfies = SelfieHelper.loadSelfiesFromProvider(order, false, this);
         adapter = new SelfieListAdapter(this, selfies);
         final ListView listView = (ListView) findViewById(R.id.nav_list_selfies);
         listView.setAdapter(adapter);
@@ -185,36 +154,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private List<Selfie> loadSelfiesFromProvider(SelfiesOrder order, boolean isModified) {
-        Uri friends = SelfiesProvider.CONTENT_URI;
-        String where = null;
-        String[] whereValues = null;
-        if (isModified) {
-            where = DBHelper.SELFIES_IS_MODIFIED_COLUMN + "=?";
-            whereValues = new String[]{String.valueOf(isModified)};
-        }
-        Cursor c = getContentResolver().query(friends, null, where, whereValues, order.getDescription());
-        List<Selfie> selfies = new ArrayList<>();
-        if (c.moveToFirst()) {
-            do {
-                Selfie s;
-                try {
-                    s = new Selfie();
-                    s.setSelfieDate(iso8601Format.parse(c.getString(c.getColumnIndex(DBHelper.SELFIES_CREATION_DATE_COLUMN))));
-                    s.setImagePath(c.getString(c.getColumnIndex(DBHelper.SELFIES_ORIGINAL_IMAGE_PATH_COLUMN)));
-                } catch (ParseException e) {
-                    s = null;
-                    e.printStackTrace();
-                }
-                if (s != null) {
-                    selfies.add(s);
-                }
-            } while (c.moveToNext());
-        }
-        c.close();
-        return selfies;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
@@ -270,10 +209,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void logout() {
+    public void logout() {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.apply();
+    }
+
+    public void updateAdapter(List<Selfie> selfiesList) {
+        if (selfiesList != null) {
+            selfies.clear();
+            selfies.addAll(selfiesList);
+//adapter.clear();
+            //adapter.addAll(selfies);
+            adapter.notifyDataSetChanged();
+        }
     }
 }

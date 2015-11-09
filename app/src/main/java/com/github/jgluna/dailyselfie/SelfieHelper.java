@@ -3,18 +3,23 @@ package com.github.jgluna.dailyselfie;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 
 import com.github.jgluna.dailyselfie.model.Selfie;
+import com.github.jgluna.dailyselfie.model.SelfiesOrder;
 import com.github.jgluna.dailyselfie.provider.DBHelper;
 import com.github.jgluna.dailyselfie.provider.SelfiesProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class SelfieHelper {
 
@@ -53,5 +58,35 @@ public class SelfieHelper {
     private static File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         return new File(Environment.getExternalStorageDirectory(), timeStamp + ".jpg");
+    }
+
+    public static List<Selfie> loadSelfiesFromProvider(SelfiesOrder order, boolean isModified, Context context) {
+        Uri friends = SelfiesProvider.CONTENT_URI;
+        String where = null;
+        String[] whereValues = null;
+        if (isModified) {
+            where = DBHelper.SELFIES_IS_MODIFIED_COLUMN + "=?";
+            whereValues = new String[]{String.valueOf(isModified)};
+        }
+        Cursor c = context.getContentResolver().query(friends, null, where, whereValues, order.getDescription());
+        List<Selfie> selfies = new ArrayList<>();
+        if (c.moveToFirst()) {
+            do {
+                Selfie s;
+                try {
+                    s = new Selfie();
+                    s.setSelfieDate(iso8601Format.parse(c.getString(c.getColumnIndex(DBHelper.SELFIES_CREATION_DATE_COLUMN))));
+                    s.setImagePath(c.getString(c.getColumnIndex(DBHelper.SELFIES_ORIGINAL_IMAGE_PATH_COLUMN)));
+                } catch (ParseException e) {
+                    s = null;
+                    e.printStackTrace();
+                }
+                if (s != null) {
+                    selfies.add(s);
+                }
+            } while (c.moveToNext());
+        }
+        c.close();
+        return selfies;
     }
 }

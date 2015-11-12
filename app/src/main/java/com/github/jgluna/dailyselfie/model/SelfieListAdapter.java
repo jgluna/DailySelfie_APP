@@ -36,6 +36,9 @@ public class SelfieListAdapter extends ArrayAdapter<Selfie> {
             holder.dateView = (TextView) convertView.findViewById(R.id.list_selfie_date);
             int measures = convertView.getWidth();
             holder.imageView = (ImageView) convertView.findViewById(R.id.list_selfie_image);
+            holder.imageView.getLayoutParams().height = measures;
+            holder.imageView.getLayoutParams().width = measures;
+            holder.imageView.requestLayout();
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();

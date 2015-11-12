@@ -34,9 +34,8 @@ public class SelfieListAdapter extends ArrayAdapter<Selfie> {
             holder = new ViewHolder();
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.selfie_item, parent, false);
             holder.dateView = (TextView) convertView.findViewById(R.id.list_selfie_date);
+            int measures = convertView.getWidth();
             holder.imageView = (ImageView) convertView.findViewById(R.id.list_selfie_image);
-//            Uri uri = Uri.fromFile(new File(selfie.getImagePath()));
-//            holder.imageView.setImageURI(uri);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();

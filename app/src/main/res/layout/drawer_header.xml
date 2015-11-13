@@ -11,6 +11,7 @@
         android:scaleType="centerInside" />
 
     <TextView
+        android:id="@+id/drawer_header_text"
         style="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

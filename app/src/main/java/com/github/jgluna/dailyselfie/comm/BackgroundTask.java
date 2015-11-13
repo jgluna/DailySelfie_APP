@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
 
@@ -40,12 +41,9 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
         File photo = new File(wrapper.getSelfie().getImagePath());
         TypedFile typedImage = new TypedFile("application/octet-stream", photo);
         try {
-            List<String> bababa = new ArrayList<>();
-            bababa.addAll(wrapper.getEffects());
-            for (String str : bababa) {
-                System.out.println(str);
-            }
-            Response response = restService.applyEffect(typedImage, bababa);
+            List<String> effectsList = new ArrayList<>();
+            effectsList.addAll(wrapper.getEffects());
+            Response response = restService.applyEffect(typedImage, effectsList);
             File from = new File(wrapper.getSelfie().getImagePath());
             File to = new File(wrapper.getSelfie().getImagePath().replace(".jpg", "_old.jpg"));
             from.renameTo(to);
@@ -61,7 +59,7 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
                 output.write(buffer, 0, read);
             }
             output.flush();
-        } catch (IOException e) {
+        } catch (IOException | RetrofitError e) {
             e.printStackTrace();
         }
         return wrapper.getSelfie();

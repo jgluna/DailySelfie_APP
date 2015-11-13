@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,8 +19,10 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.github.jgluna.dailyselfie.comm.BackgroundTask;
@@ -61,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_nav_drawer);
 
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
+
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.nav_drawer);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -75,10 +80,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             mNavigationView.setNavigationItemSelectedListener(new NavItemSelectedListener(this));
+            FrameLayout header = (FrameLayout) LayoutInflater.from(this).inflate(R.layout.drawer_header, mNavigationView);
+            String user = pref.getString("user_name", "Empty User");
+            ((TextView) header.findViewById(R.id.drawer_header_text)).setText(user);
+            mNavigationView.addHeaderView(header);
         }
 
         createEffectsList();
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("DailySelfiePrefs", 0);
         SelfiesOrder order = SelfiesOrder.getByString(pref.getString("user_selfie_order", SelfiesOrder.DATE_DESC.getDescription()));
         //TODO ver como carajo manejamos estos valores
         selfies = SelfieHelper.loadSelfiesFromProvider(order, false, this);

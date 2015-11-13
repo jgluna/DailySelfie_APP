@@ -193,7 +193,7 @@ public class LoginActivity extends Activity {
             EffectsControllerInterface restService = new RestAdapter.Builder()
 //                .setClient(new ApacheClient(UnsafeHttpsClient.createUnsafeClient()))
                     .setLogLevel(RestAdapter.LogLevel.FULL)
-                    .setEndpoint("http://10.0.2.2:8080/")
+                    .setEndpoint("http://192.168.0.5:8080/")
                     .setErrorHandler(new ErrorRecorder())
                     .build()
                     .create(EffectsControllerInterface.class);

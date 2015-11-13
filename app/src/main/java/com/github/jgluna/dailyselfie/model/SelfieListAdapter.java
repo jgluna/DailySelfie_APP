@@ -34,16 +34,17 @@ public class SelfieListAdapter extends ArrayAdapter<Selfie> {
             holder = new ViewHolder();
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.selfie_item, parent, false);
             holder.dateView = (TextView) convertView.findViewById(R.id.list_selfie_date);
-            int measures = convertView.getWidth();
             holder.imageView = (ImageView) convertView.findViewById(R.id.list_selfie_image);
-            holder.imageView.getLayoutParams().height = measures;
-            holder.imageView.getLayoutParams().width = measures;
-            holder.imageView.requestLayout();
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Picasso.with(context).load(new File(selfie.getImagePath())).into(holder.imageView);
+        Picasso.with(context)
+                .load(new File(selfie.getImagePath()))
+                .resize(200, 200)
+                .onlyScaleDown()
+                .centerCrop()
+                .into(holder.imageView);
         holder.dateView.setText(selfie.getSelfieDate().toString());
         return convertView;
     }

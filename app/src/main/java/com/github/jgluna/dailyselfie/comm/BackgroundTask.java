@@ -34,7 +34,7 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
         EffectsControllerInterface restService = new RestAdapter.Builder()
 //                .setClient(new ApacheClient(UnsafeHttpsClient.createUnsafeClient()))
                 .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setEndpoint("http://10.0.2.2:8080/")
+                .setEndpoint("http://192.168.0.5:8080/")
                 .build()
                 .create(EffectsControllerInterface.class);
         File photo = new File(wrapper.getSelfie().getImagePath());

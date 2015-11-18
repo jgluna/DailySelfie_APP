@@ -9,6 +9,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //If user is logged proceed to MainActivity, otherwise go to LoginActivity
         Intent intent;
         if (userIsLogged()) {
             intent = new Intent(this, MainActivity.class);

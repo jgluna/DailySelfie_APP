@@ -47,7 +47,6 @@ public class SelfieHelper {
         Selfie s = new Selfie();
         s.setImagePath(currentPhotoPath);
         s.setSelfieDate(new Date());
-        //TODO mover a una fachada, ahorita es pa que funcione
         ContentValues values = new ContentValues();
         values.put(DBHelper.SELFIES_CREATION_DATE_COLUMN, iso8601Format.format(s.getSelfieDate()));
         values.put(DBHelper.SELFIES_ORIGINAL_IMAGE_PATH_COLUMN, s.getImagePath());

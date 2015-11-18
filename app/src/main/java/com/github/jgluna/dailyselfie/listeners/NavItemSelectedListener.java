@@ -28,6 +28,7 @@ public class NavItemSelectedListener implements NavigationView.OnNavigationItemS
         List<Selfie> selfies;
         switch (menuItem.getItemId()) {
             case R.id.drawer_set_alarm_menu:
+                //Start fragment to set a daily alarm
                 DialogFragment newFragment = new TimePickerFragment();
                 newFragment.show(activity.getSupportFragmentManager(), "timePicker");
                 return true;

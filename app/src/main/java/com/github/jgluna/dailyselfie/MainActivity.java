@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             if (extras.getBoolean("fromNotification")) {
+                //Open Camera to take selfie when starting from notification
                 Intent takePictureIntent = SelfieHelper.addOneSelfie(this.getApplicationContext());
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
@@ -83,18 +84,18 @@ public class MainActivity extends AppCompatActivity {
             FrameLayout header = (FrameLayout) LayoutInflater.from(this).inflate(R.layout.drawer_header, mNavigationView);
             String user = pref.getString("user_name", "Empty User");
             ((TextView) header.findViewById(R.id.drawer_header_text)).setText(user);
-            mNavigationView.addHeaderView(header);
         }
 
         createEffectsList();
         SelfiesOrder order = SelfiesOrder.getByString(pref.getString("user_selfie_order", SelfiesOrder.DATE_DESC.getDescription()));
-        //TODO ver como carajo manejamos estos valores
+        //Load selfies from provider to show them in the list view
         selfies = SelfieHelper.loadSelfiesFromProvider(order, false, this);
         adapter = new SelfieListAdapter(this, selfies);
         final ListView listView = (ListView) findViewById(R.id.nav_list_selfies);
         listView.setAdapter(adapter);
         listView.setSelector(R.drawable.selector);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        //set multi choice for selfies list
         listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
@@ -133,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                                         .getItem(selected.keyAt(i));
                                 wrapper.setSelfie(selectedItem);
                                 wrapper.setEffects(selectedEffects);
+                                //Start a new AsyncTask to manage the communication to the server in order to apply the effects
                                 new BackgroundTask(MainActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, wrapper);
                             }
                         }
@@ -181,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
+                //Start camera app in order to take the selfie
                 Intent takePictureIntent = SelfieHelper.addOneSelfie(this.getApplicationContext());
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
                 return true;
@@ -228,8 +231,6 @@ public class MainActivity extends AppCompatActivity {
         if (selfiesList != null) {
             selfies.clear();
             selfies.addAll(selfiesList);
-//adapter.clear();
-            //adapter.addAll(selfies);
             adapter.notifyDataSetChanged();
         }
     }

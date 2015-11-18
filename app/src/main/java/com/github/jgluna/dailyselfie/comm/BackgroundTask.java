@@ -32,10 +32,10 @@ public class BackgroundTask extends AsyncTask<EffectsRequestWrapper, Void, Selfi
     @Override
     protected Selfie doInBackground(EffectsRequestWrapper... params) {
         EffectsRequestWrapper wrapper = params[0];
+        //Create a Retrofit adapter instance to manage the communication with the server
         EffectsControllerInterface restService = new RestAdapter.Builder()
-//                .setClient(new ApacheClient(UnsafeHttpsClient.createUnsafeClient()))
                 .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setEndpoint("http://192.168.0.5:8080/")
+                .setEndpoint(EffectsControllerInterface.SERVER_ADDRESS)
                 .build()
                 .create(EffectsControllerInterface.class);
         File photo = new File(wrapper.getSelfie().getImagePath());
